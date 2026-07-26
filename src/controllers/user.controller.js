@@ -19,5 +19,43 @@ const registerUser = asyncHandler( async ( req, res ) => {
         throw new ApiError(400,"User Already exist.");
     };
 
-    
-})
+    const user = await User.create({
+        username,
+        email,
+        password,
+        isEmailVerified: false
+    });
+
+    const { unHashedToken , hashedToken, tokenExpiry } = user.generateTemporaryToken();
+
+    user.emailVerificationToken = hashedToken;
+    user.emailVerificationExpiry = tokenExpiry;
+
+    await user.save({validateBeforeSave: false});
+
+    await sendMail({
+        email: user.email,
+        sunject: "Please verify your email.",
+        mailgenContent: emailVerificationMailgenContent(
+            user.username,
+            `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`
+        )
+    });
+
+    const rigesterUser = await User.findById(user._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
+
+    if ( !rigesterUser ) {
+        throw new ApiError(500,"something is wrong when creating a user.")
+    }
+
+    return res
+    .status(201)
+    .json(
+        new ApiResponse(
+            200,
+            { user: registerUser },
+            "user register successfully."
+        )
+    );
+});
+
