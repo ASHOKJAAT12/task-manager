@@ -4,6 +4,22 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { emailVerificationMailgenContent, forgotPasswordMailgenContent, sendMail } from "../utils/email.js";
 import { User } from "../models/user.model.js";
 
+
+const generateAccessAndRefreshToken = async ( userId ) => {
+
+    try {
+        const user = await User.findById(userId);
+    
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+    
+        user.refreshToken = refreshToken;
+        await user.save({validateBeforeSave: false});
+        return {accessToken,refreshToken};
+    } catch (error) {
+        throw new ApiError(500,error.message || "somethoing is wrong when generateing token");
+    }
+}
 const registerUser = asyncHandler( async ( req, res ) => {
     const { username , email , password , role } = req.body || {};
 
