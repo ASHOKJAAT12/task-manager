@@ -21,6 +21,18 @@ app.use(express.urlencoded({
 
 //router 
 import  userRouter from './routes/user.route.js';
-app.use("api/v1/auth",userRouter);
+app.use("/api/v1/users",userRouter);
+
+// app.use((err, req, res, next) => {
+//     const statusCode = err.statusCode || 500;
+//     const message = err.message || "Internal server error";
+//     const errors = err.error || [];
+
+//     return res.status(statusCode).json({
+//         success: false,
+//         message,
+//         errors
+//     });
+// });
 
 export default app;

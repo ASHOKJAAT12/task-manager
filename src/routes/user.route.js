@@ -17,8 +17,8 @@ import {userRegisterValidator,
 import { validate } from "../middlewares/validator.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 const router = Router();
-
-router.route("/register").post(userRegisterValidator(),validate,registerUser);
+// userRegisterValidator(),validate,
+router.route("/register").post(registerUser);
 router.route("/login").post(userLoginValidator(),validate,userLogin);
 router.route("/verify-email/:verificationToken").get(verifyEmail);
 router.route("/refresh-token").post(refreshAccessToken);

@@ -21,32 +21,32 @@ const generateAccessAndRefreshToken = async ( userId ) => {
     }
 }
 const registerUser = asyncHandler( async ( req, res ) => {
-    const { username , email , password , role } = req.body || {};
+    console.log("hello1");
+    const { username , email , password } = req.body;
 
     if ( !username || !email || !password ) {
         throw new ApiError(400,"All fields are requried.")
     };
-
     const userExist = await User.findOne({
         $or: [{username},{email}]
     });
-
+    
     if ( userExist ) {
         throw new ApiError(400,"User Already exist.");
     };
-
+    
     const user = await User.create({
-        username,
-        email,
-        password,
-        isEmailVerified: false
+        username: username.toLowerCase(),
+        email: email.toLowerCase(),
+        password
     });
-
+    console.log("hello2");
+    
     const { unHashedToken , hashedToken, tokenExpiry } = user.generateTemporaryToken();
-
+    
     user.emailVerificationToken = hashedToken;
     user.emailVerificationExpiry = tokenExpiry;
-
+    
     await user.save({validateBeforeSave: false});
 
     await sendMail({
@@ -58,9 +58,9 @@ const registerUser = asyncHandler( async ( req, res ) => {
         )
     });
 
-    const rigesterUser = await User.findById(user._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
+    const registerUsers = await User.findById(user._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
 
-    if ( !rigesterUser ) {
+    if ( !registerUsers ) {
         throw new ApiError(500,"something is wrong when creating a user.")
     }
 
@@ -69,7 +69,7 @@ const registerUser = asyncHandler( async ( req, res ) => {
     .json(
         new ApiResponse(
             200,
-            { user: registerUser },
+            { user: registerUsers },
             "user register successfully."
         )
     );
@@ -236,7 +236,7 @@ const resendEmailVerification = asyncHandler ( async ( req, res ) => {
     );
 });
 
-const refreshAccessToken = asyncHandler ( async ( res , res ) => {
+const refreshAccessToken = asyncHandler ( async ( res , req ) => {
     const incomingToken = req.cookies.refreshToken || req.body.refreshToken;
 
     if ( !incomingToken ) {
