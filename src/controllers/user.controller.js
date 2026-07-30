@@ -28,7 +28,7 @@ const registerUser = asyncHandler( async ( req, res ) => {
         throw new ApiError(400,"All fields are requried.")
     };
     const userExist = await User.findOne({
-        $or: [{username},{email}]
+        $or: [{username: username.toLowerCase()},{email: email.toLowerCase()}]
     });
     
     if ( userExist ) {
@@ -49,13 +49,15 @@ const registerUser = asyncHandler( async ( req, res ) => {
     
     await user.save({validateBeforeSave: false});
 
-    await sendMail({
+    sendMail({
         email: user.email,
-        sunject: "Please verify your email.",
+        subject: "Please verify your email.",
         mailgenContent: emailVerificationMailgenContent(
             user.username,
             `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`
         )
+    }).catch((error) => {
+        console.error("Failed to send verification email:", error.message);
     });
 
     const registerUsers = await User.findById(user._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
@@ -216,13 +218,15 @@ const resendEmailVerification = asyncHandler ( async ( req, res ) => {
 
     await user.save({validateBeforeSave: false});
 
-    await sendMail({
+    sendMail({
         email: user?.email,
         subject: "Please verify your email.",
         mailgenContent: emailVerificationMailgenContent(
             user.username,
             `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`
         )
+    }).catch((error) => {
+        console.error("Failed to resend verification email:", error.message);
     });
 
     return res

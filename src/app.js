@@ -21,7 +21,7 @@ app.use(express.urlencoded({
 
 //router 
 import  userRouter from './routes/user.route.js';
-app.use("/api/v1/users",userRouter);
+app.use("/api/v1/auth",userRouter);
 
 // app.use((err, req, res, next) => {
 //     const statusCode = err.statusCode || 500;

@@ -8,7 +8,25 @@ const PORT = process.env.MAILTRAP_SMTP_PORT;
 const USER = process.env.MAILTRAP_SMTP_USER;
 const PASS = process.env.MAILTRAP_SMTP_PASS;
 
+const transporter = nodemailer.createTransport({
+    host: HOST,
+    port: PORT,
+    auth: {
+        user: USER,
+        pass: PASS
+    },
+    // Keep request latency bounded when SMTP is unreachable.
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000
+});
+
 const sendMail = async  ( options ) => {
+    if (!HOST || !PORT || !USER || !PASS) {
+        console.warn("Skipping email send because SMTP credentials are missing.");
+        return;
+    }
+
     const mailGenerator = new Mailgen({
         theme: "default",
         product: {
@@ -20,15 +38,6 @@ const sendMail = async  ( options ) => {
     const emailTextual = mailGenerator.generatePlaintext(options.mailgenContent);
 
     const emailHtml = mailGenerator.generate(options.mailgenContent);
-
-    const transporter = nodemailer.createTransport({
-        host: HOST,
-        port: PORT,
-        auth: {
-            user: USER,
-            pass: PASS
-        }
-    });
 
     const mail = {
         from: "taskmanager@gamil.com",
