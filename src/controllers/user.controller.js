@@ -240,8 +240,8 @@ const resendEmailVerification = asyncHandler ( async ( req, res ) => {
     );
 });
 
-const refreshAccessToken = asyncHandler ( async ( res , req ) => {
-    const incomingToken = req.cookies.refreshToken || req.body.refreshToken;
+const refreshAccessToken = asyncHandler ( async ( req, res ) => {
+    const incomingToken = req.cookies?.refreshToken || req.body.refreshToken;
 
     if ( !incomingToken ) {
         throw new ApiError(401,"Unauthorized access.");
@@ -355,10 +355,11 @@ const resetForgotPassword = asyncHandler ( async (req , res) => {
 });
 
 const changeCurrentPassword = asyncHandler ( async ( req , res ) => {
-    const { oldPassword , newPassword } = req.body || {};
-
+    const { oldPassword , newPassword } = req.body;
+    
     const user = await User.findById(req.user?._id);
-
+    console.log(user);
+    
     const isPassword = await user.isPasswordCorrect(oldPassword);
 
     if ( !isPassword ) {

@@ -13,7 +13,7 @@ export const verifyJWT = asyncHandler ( async ( req, res, next ) => {
     }
 
     try {
-        const decodeToken = jwt.verify(incomingToken,process.env.ACCESS_TOKEN_SECRET);
+        const decodedToken = jwt.verify(incomingToken,process.env.ACCESS_TOKEN_SECRET);
 
         const user = await User.findById(decodedToken?._id);
 
