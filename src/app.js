@@ -21,7 +21,17 @@ app.use(express.urlencoded({
 
 //router 
 import  userRouter from './routes/user.route.js';
+import healthCheckRouter from './routes/healthcheck.route.js';
+import projectRouter from './routes/project.route.js';
+
 app.use("/api/v1/auth",userRouter);
+app.use("/api/v1/health",healthCheckRouter);
+app.use("/api/v1/projects",projectRouter);
+app.get("/",(req, res)=> {
+    res.send("welcome to task manager")
+});
+
+
 
 // app.use((err, req, res, next) => {
 //     const statusCode = err.statusCode || 500;
