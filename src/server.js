@@ -1,20 +1,20 @@
-import app from './app.js';
 import dotenv from 'dotenv';
+dotenv.config({ path: "./.env" });
+
+// dotenv MUST be configured before importing app (which imports modules
+// that read from process.env at module-load time, e.g. email.js, models)
+import app from './app.js';
 import connectDB from './db/index.js';
 
 const PORT = process.env.PORT || 4000;
 
-dotenv.config({
-    path: "./.env"
-})
-
-
 connectDB()
-.then(()=>{
-    app.listen(PORT,()=>{
-        console.log(`server is live on PORT ${PORT}`);
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server is running on PORT ${PORT} [${process.env.NODE_ENV || "development"}]`);
+        });
     })
-})
-.catch((error)=> {
-    console.error("Mongodb connection faild");
-});
+    .catch((error) => {
+        console.error("MongoDB connection failed:", error.message);
+        process.exit(1);
+    });

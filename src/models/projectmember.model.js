@@ -19,10 +19,10 @@ const projectMemberSchema = new Schema(
       default: UserRolesEnum.MEMBER,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-export const ProjectMember = mongoose.model(
-  "ProjectMember",
-  projectMemberSchema,
-);
+// Compound unique index: a user can only be a member of a project once
+projectMemberSchema.index({ user: 1, project: 1 }, { unique: true });
+
+export const ProjectMember = mongoose.model("ProjectMember", projectMemberSchema);
